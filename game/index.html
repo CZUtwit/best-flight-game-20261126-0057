@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudrunner — Canyon Rings</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1c2c; font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #hud { position: fixed; inset: 0; pointer-events: none; color: #dff4ff; user-select: none; }
+  .panel { position: absolute; background: rgba(6, 22, 34, 0.55); border: 1px solid rgba(140, 220, 255, 0.35); border-radius: 8px; padding: 8px 12px; backdrop-filter: blur(2px); }
+  .label { font-size: 10px; letter-spacing: 2px; color: #8fd8ff; text-transform: uppercase; }
+  .value { font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .unit { font-size: 11px; color: #9fc6dd; margin-left: 3px; }
+  #hud-alt { top: 14px; left: 14px; min-width: 110px; }
+  #hud-spd { top: 14px; left: 150px; min-width: 110px; }
+  #hud-hdg { top: 14px; left: 286px; min-width: 110px; }
+  #hud-score { top: 14px; right: 14px; text-align: right; min-width: 130px; }
+  #hud-left { left: 14px; bottom: 14px; width: 190px; }
+  #hud-mission { right: 14px; bottom: 14px; width: 250px; text-align: left; }
+  .bar { height: 10px; border-radius: 5px; background: rgba(255,255,255,0.14); overflow: hidden; margin: 4px 0 8px; }
+  .bar > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #37c8ff, #7ef0c1); transition: width 0.12s linear; }
+  #fuel-fill { background: linear-gradient(90deg, #ffb347, #ff7847); }
+  #fuel-fill.low { background: linear-gradient(90deg, #ff4747, #ff2d55); }
+  #hud-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; }
+  #attitude { width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(140, 220, 255, 0.5); background: radial-gradient(circle at 50% 50%, rgba(10,40,60,0.55) 0%, rgba(6,22,34,0.55) 100%); overflow: hidden; }
+  #attitude .horizon { position: absolute; left: -40px; width: 200px; height: 60px; background: linear-gradient(#7ec8f2 0%, #bfe6ff 55%, #3f7d44 56%, #2c5a2e 100%); opacity: 0.9; }
+  #attitude .cross { position: absolute; left: 50%; top: 50%; width: 44px; height: 2px; background: #ffe08a; transform: translate(-50%, -50%); box-shadow: 0 0 6px #ffe08a; }
+  #attitude .cross::after { content: ""; position: absolute; left: 50%; top: -5px; width: 2px; height: 12px; background: #ffe08a; transform: translateX(-50%); }
+  #reticle { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); }
+  #reticle::before, #reticle::after { content: ""; position: absolute; background: rgba(255, 224, 138, 0.9); }
+  #reticle::before { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+  #reticle::after { top: 50%; left: 0; height: 2px; width: 100%; transform: translateY(-50%); }
+  #banner { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); text-align: center; width: 640px; max-width: 90vw; }
+  #banner-title { font-size: 42px; font-weight: 800; letter-spacing: 3px; color: #fff; text-shadow: 0 2px 18px rgba(55, 200, 255, 0.8), 0 1px 2px rgba(0,0,0,0.6); }
+  #banner-sub { font-size: 16px; color: #cfeeff; margin-top: 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.7); }
+  #banner-hint { font-size: 13px; color: #9fc6dd; margin-top: 14px; line-height: 1.7; }
+  #banner-hint b { color: #ffe08a; }
+  #toast { position: absolute; left: 50%; top: 64%; transform: translateX(-50%); font-size: 20px; font-weight: 700; color: #ffe08a; text-shadow: 0 1px 8px rgba(0,0,0,0.8); opacity: 0; transition: opacity 0.25s; white-space: nowrap; }
+  #vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(2, 10, 18, 0.45) 100%); }
+  #menu { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .mission-card { pointer-events: auto; cursor: pointer; width: 240px; margin: 0 10px; padding: 18px; border-radius: 12px; background: rgba(6, 22, 34, 0.72); border: 1px solid rgba(140, 220, 255, 0.4); color: #dff4ff; }
+  .mission-card:hover { border-color: #ffe08a; background: rgba(10, 34, 52, 0.85); }
+  .mission-card h3 { margin: 0 0 6px; font-size: 19px; color: #ffe08a; }
+  .mission-card p { margin: 0; font-size: 13px; line-height: 1.55; color: #cfeeff; }
+  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>
+</head>
+<body>
+<canvas id="scene" aria-label="Cloudrunner: fly the canyon, thread the rings, land on the runway"></canvas>
+<div id="vignette"></div>
+<div id="hud">
+  <div class="panel" id="hud-alt"><div class="label">Altitude</div><div><span class="value" id="alt-val">0</span><span class="unit">ft</span></div></div>
+  <div class="panel" id="hud-spd"><div class="label">Airspeed</div><div><span class="value" id="spd-val">0</span><span class="unit">kt</span></div></div>
+  <div class="panel" id="hud-hdg"><div class="label">Heading</div><div><span class="value" id="hdg-val">000°</span></div></div>
+  <div class="panel" id="hud-score"><div class="label">Score</div><div><span class="value" id="score-val">0</span></div><div class="label" style="margin-top:4px">Rings <span id="rings-val" style="color:#fff;font-size:13px">0 / 12</span></div></div>
+  <div class="panel" id="hud-left">
+    <div class="label">Throttle</div>
+    <div class="bar"><div id="thr-fill" style="width:0%"></div></div>
+    <div class="label">Fuel</div>
+    <div class="bar"><div id="fuel-fill" style="width:100%"></div></div>
+    <div style="font-size:12px;color:#9fc6dd">Time <span id="time-val" style="color:#fff">0:00</span> &nbsp;·&nbsp; <span id="mode-val">Ring Run</span></div>
+  </div>
+  <div class="panel" id="hud-mission"><div class="label">Objective</div><div id="obj-val" style="font-size:13px;line-height:1.5;margin-top:2px">Thread the rings, then land on the far runway.</div></div>
+  <div id="hud-center"><div id="attitude"><div class="horizon" id="horizon"></div><div class="cross"></div></div><div id="reticle"></div></div>
+  <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div><div id="banner-hint"></div></div>
+  <div id="toast"></div>
+</div>
+<div id="menu"></div>
+<p id="status" role="status" aria-live="polite"></p>
+<script src="./vendor/three.min.js"></script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
