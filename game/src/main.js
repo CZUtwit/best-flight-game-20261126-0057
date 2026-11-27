@@ -136,11 +136,12 @@ class Game {
   }
 
   // Put the chase camera exactly where it belongs right now, no lerp.
+  // v2: closer chase (12 m back, 4.5 m up) so the aircraft reads bigger.
   _snapCamera() {
     const ac = this.aircraft;
     const fwd = new THREE.Vector3(-Math.sin(ac.heading), 0, -Math.cos(ac.heading));
-    this.camPos.copy(ac.pos).addScaledVector(fwd, -16).add(new THREE.Vector3(0, 6, 0));
-    this.camTarget.copy(ac.pos).addScaledVector(fwd, 30).add(new THREE.Vector3(0, 1.5, 0));
+    this.camPos.copy(ac.pos).addScaledVector(fwd, -12).add(new THREE.Vector3(0, 4.5, 0));
+    this.camTarget.copy(ac.pos).addScaledVector(fwd, 24).add(new THREE.Vector3(0, 1.2, 0));
     this.camera.position.copy(this.camPos);
     this.camera.lookAt(this.camTarget);
   }
@@ -302,10 +303,10 @@ class Game {
   _updateCamera(dt) {
     const ac = this.aircraft;
     const fwd = new THREE.Vector3(-Math.sin(ac.heading), 0, -Math.cos(ac.heading));
-    const desired = ac.pos.clone().addScaledVector(fwd, -16).add(new THREE.Vector3(0, 6, 0));
+    const desired = ac.pos.clone().addScaledVector(fwd, -12).add(new THREE.Vector3(0, 4.5, 0));
     const k = this.state === 'menu' ? Math.min(1, dt * 1.2) : Math.min(1, dt * 4.5);
     this.camPos.lerp(desired, k);
-    const target = ac.pos.clone().addScaledVector(fwd, 30).add(new THREE.Vector3(0, 1.5, 0));
+    const target = ac.pos.clone().addScaledVector(fwd, 24).add(new THREE.Vector3(0, 1.2, 0));
     this.camTarget.lerp(target, Math.min(1, dt * 6));
     // Speed kick: a wider view when the air is rushing past.
     const fov = 62 + Math.min(9, (ac.speed / PLANE.maxSpeed) * 9);
@@ -350,8 +351,10 @@ class Game {
     if (shot === 'menu') return; // stay on the menu
     if (shot === 'cover') {
       start('rings');
-      this.aircraft.pos.set(-40, 78, -980);
-      this.aircraft.heading = 0.12;
+      // Lined up on Gate 5 (120, 60, -1150): 45 m out, dead ahead, so the
+      // ring reads big in the cover frame.
+      this.aircraft.pos.set(120, 60, -1105);
+      this.aircraft.heading = 0;
       this.rings.nextIndex = 4; // Gate 5 ahead
       this.rings.passed = 4;
       this.mission.ringsPassed = 4;

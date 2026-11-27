@@ -22,11 +22,11 @@
   .bar > div { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #37c8ff, #7ef0c1); transition: width 0.12s linear; }
   #fuel-fill { background: linear-gradient(90deg, #ffb347, #ff7847); }
   #fuel-fill.low { background: linear-gradient(90deg, #ff4747, #ff2d55); }
-  #hud-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; }
-  #attitude { width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(140, 220, 255, 0.5); background: radial-gradient(circle at 50% 50%, rgba(10,40,60,0.55) 0%, rgba(6,22,34,0.55) 100%); overflow: hidden; }
-  #attitude .horizon { position: absolute; left: -40px; width: 200px; height: 60px; background: linear-gradient(#7ec8f2 0%, #bfe6ff 55%, #3f7d44 56%, #2c5a2e 100%); opacity: 0.9; }
-  #attitude .cross { position: absolute; left: 50%; top: 50%; width: 44px; height: 2px; background: #ffe08a; transform: translate(-50%, -50%); box-shadow: 0 0 6px #ffe08a; }
-  #attitude .cross::after { content: ""; position: absolute; left: 50%; top: -5px; width: 2px; height: 12px; background: #ffe08a; transform: translateX(-50%); }
+  #hud-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; }
+  #attitude { position: absolute; left: 50%; bottom: 100px; transform: translateX(-50%); width: 80px; height: 80px; border-radius: 50%; border: 2px solid rgba(140, 220, 255, 0.5); background: radial-gradient(circle at 50% 50%, rgba(10,40,60,0.55) 0%, rgba(6,22,34,0.55) 100%); overflow: hidden; }
+  #attitude .horizon { position: absolute; left: -25px; width: 130px; height: 40px; background: linear-gradient(#7ec8f2 0%, #bfe6ff 55%, #3f7d44 56%, #2c5a2e 100%); opacity: 0.9; }
+  #attitude .cross { position: absolute; left: 50%; top: 50%; width: 30px; height: 2px; background: #ffe08a; transform: translate(-50%, -50%); box-shadow: 0 0 6px #ffe08a; }
+  #attitude .cross::after { content: ""; position: absolute; left: 50%; top: -4px; width: 2px; height: 10px; background: #ffe08a; transform: translateX(-50%); }
   #reticle { position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; transform: translate(-50%, -50%); }
   #reticle::before, #reticle::after { content: ""; position: absolute; background: rgba(255, 224, 138, 0.9); }
   #reticle::before { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
@@ -62,7 +62,8 @@
     <div style="font-size:12px;color:#9fc6dd">Time <span id="time-val" style="color:#fff">0:00</span> &nbsp;·&nbsp; <span id="mode-val">Ring Run</span></div>
   </div>
   <div class="panel" id="hud-mission"><div class="label">Objective</div><div id="obj-val" style="font-size:13px;line-height:1.5;margin-top:2px">Thread the rings, then land on the far runway.</div></div>
-  <div id="hud-center"><div id="attitude"><div class="horizon" id="horizon"></div><div class="cross"></div></div><div id="reticle"></div></div>
+  <div id="hud-center"><div id="reticle"></div></div>
+  <div id="attitude"><div class="horizon" id="horizon"></div><div class="cross"></div></div>
   <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div><div id="banner-hint"></div></div>
   <div id="toast"></div>
 </div>

@@ -35,9 +35,10 @@ export class Hud {
     fuel.style.width = Math.max(0, Math.round(s.fuel)) + '%';
     fuel.classList.toggle('low', s.fuel < FUEL.lowWarn);
     // Attitude ball: horizon slides with pitch, tilts with roll.
+    // Ball is 80px, horizon strip 40px: centred top is 20px, travel ±18px.
     const h = this.el['horizon'];
-    const pitchPx = Math.max(-28, Math.min(28, -s.pitch * 48));
-    h.style.top = (30 + pitchPx) + 'px';
+    const pitchPx = Math.max(-18, Math.min(18, -s.pitch * 32));
+    h.style.top = (20 + pitchPx) + 'px';
     h.style.transform = 'rotate(' + (-s.roll * 57.3 * 0.9) + 'deg)';
   }
 
